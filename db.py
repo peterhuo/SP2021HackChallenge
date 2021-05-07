@@ -12,7 +12,7 @@ class User(db.Model):
     contact = db.Column(db.String, nullable = False)
     talents = relationship("Talent", cascade = "delete")
     needs = relationship("Need", cascade = "delete") 
-
+ 
     def __init__(self, **kwargs):
         self.username = kwargs.get("username")
         self.timeavai = ""
@@ -67,6 +67,6 @@ class Need(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "need": self.need.
+            "need": self.need
             "issue": self.issue
-        }
+        } 
