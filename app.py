@@ -32,7 +32,6 @@ def failure_response(message, code=404):
 # -- USER ROUTES ------------------------------------------------------
 
 
-@app.route("/")
 @app.route("/users/")
 def get_uers():
     return success_response([u.serialize() for u in User.query.all()])
@@ -55,12 +54,12 @@ def get_user_by_id(user_id):
         return failure_response("User not found :(")
     return success_response(user.serialize())
 
-@app.route("/users/<str:user_name>/") #我不是很确定“str” 可不可以这样用
-def get_user_by_username(user_name):
-    user = User.query.filter_by(username = user_name).first()
-    if user is None:
-        return failure_response("User not found :(")
-    return success_response(user.serialize(), 201)
+# @app.route("/users/<str:user_name>/") #我不是很确定“str” 可不可以这样用
+# def get_user_by_username(user_name):
+#     user = User.query.filter_by(username = user_name).first()
+#     if user is None:
+#         return failure_response("User not found :(")
+#     return success_response(user.serialize(), 201)
 
 @app.route("/users/<int:user_id>/perfect")
 def get_perfect_match(user_id):
@@ -88,7 +87,7 @@ def delete_user(usre_id):
     db.session.commit()
     return success_response(user.serialize())
 
-@app.route("/users/<int:user_id>/", methods=["POST"])
+@app.route("/users/timeavai/<int:user_id>/", methods=["POST"])
 def update_timeavai(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -101,7 +100,7 @@ def update_timeavai(user_id):
     db.session.commit()
     return success_response(user.serialize())
 
-@app.route("/users/<int:user_id>/", methods=["POST"])
+@app.route("/users/contact/<int:user_id>/", methods=["POST"])
 def update_contact(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -141,14 +140,13 @@ def create_talent(user_id):
         return failure_response("You did not type in anything :(")
     new_talent = Talent(
         talent = talent,
-        experience = "",
         user_id = user_id
     )
     db.session.add(new_talent)
     db.session.commit()
-    return success_response(talent.serialize())
+    return success_response(new_talent.serialize())
 
-@app.route("/users/<int:user_id>/<int:talent_id>/", methods=["DELETE"])
+@app.route("/users/talents/<int:user_id>/<int:talent_id>/", methods=["DELETE"])
 def delete_talent(user_id, talent_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -160,7 +158,7 @@ def delete_talent(user_id, talent_id):
     db.session.commit()
     return success_response(talent.serialize())
 
-@app.route("/users/<int:user_id>/<int:talent_id>/", methods=["POST"])
+@app.route("/users/talents/<int:user_id>/<int:talent_id>/", methods=["POST"])
 def update_experience(user_id, talent_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -174,7 +172,7 @@ def update_experience(user_id, talent_id):
         return failure_response("You did not type in anything :(")
     talent.experience = new_experience
     db.session.commit()
-
+    return success_response(talent.serialize())
 
 # -- NEED ROUTES --------------------------------------------------
 
@@ -202,15 +200,14 @@ def create_need(user_id):
         return failure_response("You did not type in anything :(")
     new_need = Need(
         need = need,
-        issue = "",
         user_id = user_id 
     )
     db.session.add(new_need)
     db.session.commit()
-    return success_response(need.serialize())
+    return success_response(new_need.serialize())
 
-@app.route("/users/<int:user_id>/<int:need_id>/", methods=["DELETE"])
-def delete_talent(user_id, need_id):
+@app.route("/users/needs/<int:user_id>/<int:need_id>/", methods=["DELETE"])
+def delete_need(user_id, need_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
         return failure_response("User not found :(")
@@ -221,8 +218,8 @@ def delete_talent(user_id, need_id):
     db.session.commit()
     return success_response(need.serialize())
 
-@app.route("/users/<int:user_id>/<int:need_id>/", methods=["POST"])
-def update_experience(user_id, need_id):
+@app.route("/users/needs/<int:user_id>/<int:need_id>/", methods=["POST"])
+def update_issue(user_id, need_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
         return failure_response("User not found :(")

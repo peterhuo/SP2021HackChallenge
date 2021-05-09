@@ -19,12 +19,12 @@ class User(db.Model):
         self.contact = ""
 
     def serialize(self):
-        talents = []
-        needs = []
-        for talent in self.talents:
-            talents.append(talent)
-        for need in self.needs:
-            needs.append(need)
+        # talents = []
+        # needs = []
+        # for talent in self.talents:
+        #     talents.append(talent)
+        # for need in self.needs:
+        #     needs.append(need)
 
         return {
             "id ": self.id,
@@ -44,12 +44,15 @@ class Talent(db.Model):
 
     def __init__(self, **kwargs):
         self.talent = kwargs.get("talent")
+        self.experience = ""
+        self.user_id = kwargs.get("user_id")
 
     def serialize(self):
         return {
             "id": self.id,
             "talent": self.talent,
-            "experience": self.experience
+            "experience": self.experience,
+            # "user_id": self.user_id
         }
 
 class Need(db.Model):
@@ -61,7 +64,8 @@ class Need(db.Model):
 
     def __init__(self, **kwargs):
         self.need = kwargs.get("need")
-        self.issue = kwargs.get("issue")
+        self.issue = ""
+        self.user_id = kwargs.get("user_id")
     
     def serialize(self):
         return {
