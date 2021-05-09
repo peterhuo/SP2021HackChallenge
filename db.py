@@ -34,6 +34,32 @@ class User(db.Model):
             "talents": [t.serialize() for t in self.talents],
             "needs": [n.serialize() for n in self.needs]
         } 
+    
+    def check(self, user2):
+        tmatch = False 
+        nmatch = False
+
+        for t in self.talents:
+            if not tmatch:
+                for n in user2.needs:
+                    if t.talent == n.need:
+                        tmatch = True
+           
+        for n in self.needs:
+            if not nmatch:
+                for t in user2.talents:
+                    if n.need == t.talent:
+                        nmatch = True 
+                        
+        if tmatch and nmatch:
+            return 3
+        elif tmatch:
+            return 2
+        elif nmatch:
+            return 1
+        else:
+            return 0
+
 
 class Talent(db.Model):
     __tablename__ = "talent"
@@ -54,6 +80,7 @@ class Talent(db.Model):
             "experience": self.experience,
             # "user_id": self.user_id
         }
+
 
 class Need(db.Model):
     __tablename__ = "need"

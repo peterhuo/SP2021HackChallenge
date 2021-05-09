@@ -61,22 +61,30 @@ def get_user_by_id(user_id):
 #         return failure_response("User not found :(")
 #     return success_response(user.serialize(), 201)
 
-@app.route("/users/<int:user_id>/perfect")
-def get_perfect_match(user_id):
-    user = User.query.filter_by(username = user_name).first()
+@app.route("/users/<int:user_id>/perfect/")
+def perfect(user_id):
+    user = get_user_by_id(user_id)
     if user is None:
         return failure_response("User not found :(")
+    all_users = User.query.all()
     matches = []
-    for u in User.query.all():
-        perfect = False
-        for t in user.talents:
-            if t in u.needs:
-                for n in user.needs:
-                    if n in u.talents:
-                        perfect = True
-        if perfect == True:
-            matches = matches.append(u)
+    for u in all_users:
+        if user.check(u) == 3:
+            matchers.append(u)
     return success_response([u.serialize() for u in matches])
+
+@app.route("/users/<int:user_id>/talent_match/")
+def talent_match(user_id):
+    pass
+
+@app.route("/users/<int:user_id>/need_match/")
+def need_match(user_id):
+    pass
+
+@app.route("/users/<int:user_id>/others")
+def others(user_id):
+    pass
+
 
 @app.route("/users/<int:user_id>", methods=["DELETE"])
 def delete_user(usre_id):
