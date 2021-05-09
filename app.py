@@ -71,9 +71,9 @@ def get_perfect_match(user_id):
     for u in User.query.all():
         perfect = False
         for t in user.talents:
-            if t is in u.needs:
+            if t in u.needs:
                 for n in user.needs:
-                    if n is in u.talents:
+                    if n in u.talents:
                         perfect = True
         if perfect == True:
             matches = matches.append(u)

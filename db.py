@@ -66,6 +66,6 @@ class Need(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "need": self.need.
+            "need": self.need,
             "issue": self.issue
         }
