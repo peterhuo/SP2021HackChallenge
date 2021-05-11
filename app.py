@@ -32,11 +32,90 @@ def failure_response(message, code=404):
 # -- USER ROUTES ------------------------------------------------------
 
 
-@app.route("/users/")
+# for Authentication Purpose 
+def get_user_by_email(email):
+    return User.query.filter(User.email == email).first()
+
+def get_user_by_username(username):
+    return User.query.filter(User.name == name).first()
+
+def get_user_by_session_token(session_token):
+    return User.query.filter(User.session_token == session_token).first()
+
+def get_user_by_update_token(update_token):
+    return User.query.filter(User.update_token == update_token).first()
+
+def extract_token(request):
+    auth_header = request.headers.get("Authorization")
+    if auth_header is None:
+        return False, json.dumps({"error": "Missing auth header"})
+    
+    bearer_token = auth_header.replace("Bearer ", "").strip()
+    if bearer_token is None or not bearer_token:
+        return False, json.dumps({"error": "Invalid auth header"})
+
+    return True, bearer_token 
+
+@app.route("/register/", methods=["POST"])
+def register_account():
+    body = json.loads(request.data)
+    email = body.get("email")
+    password = body.get("password")
+    username = body.get("username")
+    if email is None or password is None or username is None:
+        return failure_response("Missing Information :(")
+    
+    optional_user = get_user_by_email(email)
+
+    if optional_user is not None:
+        return failure_response("User already exist :( Please sign in or use another email address.")
+    
+    new_user = User(
+        email = email,
+        password = password,
+        username = username
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    return success_response(new_user.serialize_authen(), 201)
+
+@app.route("login", methods=["POST"])
+def login():
+    body = json.loads(request.data)
+    email = body.get("email")
+    password = body.get("password")
+    if email is None or password is None：
+        return failure_response("Missing Information :(")
+    
+    user = get_user_by_email(email)
+    if user is None:
+        return failure_response("User not found :( Please sign up first or check if your email is correct.")
+    elif user.verify_password(password) == False:
+        return failure_response("Incorrect password :(")
+    else:
+        return success_response(user.serialize_authen(), 201)
+    
+@app.route("/session/", methods=["POST"])
+def update_session():
+    success, update_token = extract_token(request)
+    if not success:
+        return update_token
+    
+    user = get_usre_by_update_token(update_token)
+
+    if user is None:
+        return failure_response("error": f"Invalid update token: {update_token}")
+    
+    user.renew_session()
+    db.session.commit()
+
+    return success_response(user.serialize_authen(), 201)
+
+@app.route("/users/") 
 def get_uers():
     return success_response([u.serialize() for u in User.query.all()])
 
-@app.route("/users/", methods=["POST"])
+@app.route("/users/", methods=["POST"]) # This endpoint and function may not be used anymore
 def create_user():
     body = json.loads(request.data)
     new_username = body.get("username")

@@ -13,10 +13,46 @@ class User(db.Model):
     talents = db.relationship("Talent", cascade = "delete")
     needs = db.relationship("Need", cascade = "delete") 
 
+    # More User Information for Autentication Purpose
+    email = db.Column(db.String, nullable=False, unique=True)
+    password_digest = db.Column(db.String, nullable=False)
+
+    # Session information for Autentication Purpose
+    session_token = db.Column(db.String, nullable=False, unique=True)
+    session_expiration = db.Column(db.DataTime, nullable=False)
+    update_token = db.Column(db.String, nullable=False, unique=True)
+
     def __init__(self, **kwargs):
         self.username = kwargs.get("username")
+        # for Autentication Purpose
+        self.email = kwargs.get("email")
+        self.password_digest = bcrypt.hashpw(kwargs.get("password").encode("utf8"), bvrypt.gensalt(rounds=13))
+        self.renew_session()
+        # end 
         self.timeavai = ""
         self.contact = ""
+
+    # More Methods for Autentication Purpose
+    # Used to randomly generate session/update tokens
+    def _urlsafe_base_64(self):
+        return hashlib.sha1(os.urandom(64)).hexdigest()
+
+    # Generates new tokens, and resets expiration time
+    def renew_session(self):
+        self.session_token = self._urlsafe_base_64()
+        self.session_expiration = datetime.datetime.now() + datetime.timedelta(days=1)
+        self.update_token = self._urlsafe_base_64()
+
+    def verify_password(self, password):
+        return bcrypt.checkpw(password.encode("utf8"), self.password_digest)
+
+    # Checks if session token is valid and hasn't expired
+    def verify_session_token(self, session_token):
+        return session_token == self.session_token and datetime.datetime.now() < self.session_expiration
+
+    def verify_update_token(self, update_token):
+        return update_token == self.update_token
+    #end 
 
     def serialize(self):
         # talents = []
@@ -34,6 +70,13 @@ class User(db.Model):
             "talents": [t.serialize() for t in self.talents],
             "needs": [n.serialize() for n in self.needs]
         } 
+    # serialize() method for registration only 
+    def serialize_authen(self):
+        return {
+            "session_token": user.session_token,
+            "session_expiration": str(user.session_expiration),
+            "update_token": user.update_token
+        }
     
     def check(self, user2):
         tmatch = False 
