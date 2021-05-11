@@ -35,7 +35,7 @@ class User(db.Model):
 
     # Session information for Autentication Purpose
     session_token = db.Column(db.String, nullable=False, unique=True)
-    session_expiration = db.Column(db.DataTime, nullable=False)
+    session_expiration = db.Column(db.DateTime, nullable=False)
     update_token = db.Column(db.String, nullable=False, unique=True)
 
     def __init__(self, **kwargs):

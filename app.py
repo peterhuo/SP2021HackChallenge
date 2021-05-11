@@ -78,7 +78,7 @@ def register_account():
     db.session.commit()
     return success_response(new_user.serialize_authen(), 201)
 
-@app.route("login", methods=["POST"])
+@app.route("/login/", methods=["POST"])
 def login():
     body = json.loads(request.data)
     email = body.get("email")
