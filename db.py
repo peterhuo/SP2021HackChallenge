@@ -1,6 +1,21 @@
 from flask_sqlalchemy import SQLAlchemy
+import base64
+import boto3
+import datetime
+from io import BytesIO
+from mimetypes import guess_extension, guess_type
+import os
+from PIL import Image
+import random
+import re
+import string
 
 db = SQLAlchemy()
+
+EXTENSIONS = ['png','gif','jpg','jpeg']
+BASE_DIR = os.getcwd()
+S3_BUCKET = 'sp2021hackchallenge'
+S3_BASE_URL = f'http://{S3_BUCKET}.s3-us-east-2.amazonaws.com'
 
 # implement database model classes
 
@@ -11,7 +26,8 @@ class User(db.Model):
     timeavai = db.Column(db.String, nullable = False)
     contact = db.Column(db.String, nullable = False)
     talents = db.relationship("Talent", cascade = "delete")
-    needs = db.relationship("Need", cascade = "delete") 
+    needs = db.relationship("Need", cascade = "delete")
+    asset = db.relationship("Asset", cascade = "delete")
 
     def __init__(self, **kwargs):
         self.username = kwargs.get("username")
@@ -32,7 +48,8 @@ class User(db.Model):
             "timeavai": self.timeavai,
             "contact": self.contact,
             "talents": [t.serialize() for t in self.talents],
-            "needs": [n.serialize() for n in self.needs]
+            "needs": [n.serialize() for n in self.needs],
+            "profile_pic": [a.serialize() for a in self.asset]
         } 
     
     def check(self, user2):
@@ -100,3 +117,65 @@ class Need(db.Model):
             "need": self.need,
             "issue": self.issue
         }
+
+class Asset(db.Model):
+    __tablename__ = 'asset'
+
+    id = db.Column(db.Integer, primary_key=True)
+    base_url = db.Column(db.String, nullable=False)
+    salt = db.Column(db.String, nullable = False)
+    extension = db.Column(db.String, nullable = False)
+    height = db.Column(db.Integer, nullable = False)
+    width = db.Column(db.Integer, nullable = False)
+    created_at = db.Column(db.DateTime, nullable = False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __init__(self, **kwargs):
+        self.create(kwargs.get('image_data'))
+        self.user_id = kwargs.get("user_id")
+
+    def serialize(self):
+        return {
+            "url": f"{self.base_url}/{self.salt}.{self.extension}",
+            "created_at": str(self.created_at) 
+        }
+    
+    def create(self, image_data):
+        try:
+            ext = guess_extension(guess_type(image_data)[0])[1:]
+            if ext not in EXTENSIONS:
+                raise Exception(f'Extension {ext} not supported!')
+
+            salt = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for i in range(16))
+            img_str = re.sub("^data:image/.+;base64,", "", image_data)
+            img_data = base64.b64decode(img_str)
+            img = Image.open(BytesIO(img_data))
+
+            self.base_url = S3_BASE_URL
+            self.salt = salt
+            self.extension = ext
+            self.height = img.height
+            self.width = img.width
+            self.created_at = datetime.datetime.now()
+
+            img_filename = f'{salt}.{ext}'
+            self.upload(img, img_filename)
+
+        except Exception as e:
+            print('Error', e)
+
+    def upload(self, img, img_filename):
+        try:
+            img_temploc = f'{BASE_DIR}/{img_filename}'
+            img.save(img_temploc)
+
+            s3_client = boto3.client('s3')
+            s3_client.upload_file(img_temploc, S3_BUCKET, img_filename)
+
+            s3_resource = boto3.resource('s3')
+            object_acl = s3_resource.ObjectAcl(S3_BUCKET, img_filename)
+            object_acl.put(ACL="public-read")
+            os.remove(img_temploc)
+
+        except Exception as e:
+            print('Upload Failed: ', e)

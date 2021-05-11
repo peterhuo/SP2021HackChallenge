@@ -3,10 +3,10 @@ import os
 from db import db
 from flask import Flask
 from flask import request 
-from db import User, Talent, Need 
+from db import User, Talent, Need, Asset
 
 # define db filename
-db_filename = "todo.db"
+db_filename = "talentExchange.db"
 app = Flask(__name__)
 
 # setup config
@@ -33,7 +33,7 @@ def failure_response(message, code=404):
 
 
 @app.route("/users/")
-def get_uers():
+def get_users():
     return success_response([u.serialize() for u in User.query.all()])
 
 @app.route("/users/", methods=["POST"])
@@ -63,31 +63,55 @@ def get_user_by_id(user_id):
 
 @app.route("/users/<int:user_id>/perfect/")
 def perfect(user_id):
-    user = get_user_by_id(user_id)
+    user = User.query.filter_by(id= user_id).first()
     if user is None:
         return failure_response("User not found :(")
     all_users = User.query.all()
     matches = []
     for u in all_users:
         if user.check(u) == 3:
-            matchers.append(u)
+            matches.append(u)
     return success_response([u.serialize() for u in matches])
 
 @app.route("/users/<int:user_id>/talent_match/")
 def talent_match(user_id):
-    pass
+    user = User.query.filter_by(id= user_id).first()
+    if user is None:
+        return failure_response("User not found :(")
+    all_users = User.query.all()
+    matches = []
+    for u in all_users:
+        if user.check(u) == 2:
+            matches.append(u)
+    return success_response([u.serialize() for u in matches])
 
 @app.route("/users/<int:user_id>/need_match/")
 def need_match(user_id):
-    pass
+    user = User.query.filter_by(id= user_id).first()
+    if user is None:
+        return failure_response("User not found :(")
+    all_users = User.query.all()
+    matches = []
+    for u in all_users:
+        if user.check(u) == 1:
+            matches.append(u)
+    return success_response([u.serialize() for u in matches])
 
 @app.route("/users/<int:user_id>/others")
 def others(user_id):
-    pass
+    user = User.query.filter_by(id= user_id).first()
+    if user is None:
+        return failure_response("User not found :(")
+    all_users = User.query.all()
+    matches = []
+    for u in all_users:
+        if user.check(u) == 0:
+            matches.append(u)
+    return success_response([u.serialize() for u in matches])
 
 
 @app.route("/users/<int:user_id>", methods=["DELETE"])
-def delete_user(usre_id):
+def delete_user(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
         return failure_response("User not found :(")
@@ -242,7 +266,45 @@ def update_issue(user_id, need_id):
     db.session.commit()
 
 
+#-- IMAGE ROUTES --------------------------------------------------
+@app.route("/users/<int:user_id>/profile/")
+def get_profile_by_id(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return failure_response("User not found :(")
+    user.asset = Asset.query.filter_by(user_id = user_id)
+    return success_response([a.serialize() for a in user.asset])
 
+@app.route("/users/<int:user_id>/profile/upload/", methods=["POST"])
+def upload(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return failure_response("User not found :(")
+    if len(user.asset) > 0:
+        return failure_response("There already is a profile picture")
+    body = json.loads(request.data)
+    image_data = body.get('image_data')
+    if image_data is None:
+        return failure_response('No Image!')
+    asset = Asset(
+        image_data = image_data,
+        user_id = user_id    
+    )
+    db.session.add(asset)
+    db.session.commit()
+    return success_response(asset.serialize(), 201)
+
+@app.route("/users/<int:user_id>/<int:asset_id>/profile/delete/", methods=["DELETE"])
+def delete_profile(user_id, asset_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return failure_response("User not found :(")
+    profile = Asset.query.filter_by(id=asset_id).first()
+    if profile is None:
+        return failure_response("Profile picture not found :(")
+    db.session.delete(profile)
+    db.session.commit()
+    return success_response(user.serialize())
 
 
 if __name__ == "__main__":
