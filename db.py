@@ -176,6 +176,6 @@ class Asset(db.Model):
             object_acl = s3_resource.ObjectAcl(S3_BUCKET, img_filename)
             object_acl.put(ACL="public-read")
             os.remove(img_temploc)
-
+            
         except Exception as e:
-            print('Upload Failed: ', e)
+            print('Upload Failed:', e)
