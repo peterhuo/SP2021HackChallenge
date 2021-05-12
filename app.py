@@ -110,11 +110,68 @@ def failure_response(message, code=404):
 
 #     return success_response(user.serialize_authen(), 201)
 
-@app.route("/users/") 
+@app.route("/users/")#check
 def get_users():
     return success_response([u.serialize() for u in User.query.all()])
 
-@app.route("/users/", methods=["POST"]) # This endpoint and function may not be used anymore
+@app.route("/users/<int:user_id>/matches/")#check
+def get_users_by_id(user_id):
+    match1 = perfect_list(user_id)
+    match2 = talent_match_list(user_id)
+    match3 = need_match_list(user_id)
+    match4 = others_list(user_id)
+    matches = match1 + match2 + match3 + match4
+    return success_response([u.serialize() for u in matches])
+
+def perfect_list(user_id):
+    user = User.query.filter_by(id= user_id).first()
+    if user is None:
+        return failure_response("User not found :(")
+    all_users = User.query.all()
+    matches = []
+    for u in all_users:
+        if user.check(u) == 3:
+            matches.append(u)
+    #return success_response([u.serialize() for u in matches])
+    return matches 
+
+def talent_match_list(user_id):
+    user = User.query.filter_by(id= user_id).first()
+    if user is None:
+        return failure_response("User not found :(")
+    all_users = User.query.all()
+    matches = []
+    for u in all_users:
+        if user.check(u) == 2:
+            matches.append(u)
+    #return success_response([u.serialize() for u in matches])
+    return matches
+
+def need_match_list(user_id):
+    user = User.query.filter_by(id= user_id).first()
+    if user is None:
+        return failure_response("User not found :(")
+    all_users = User.query.all()
+    matches = []
+    for u in all_users:
+        if user.check(u) == 1:
+            matches.append(u)
+    #return success_response([u.serialize() for u in matches])
+    return matches
+
+def others_list(user_id):
+    user = User.query.filter_by(id= user_id).first()
+    if user is None:
+        return failure_response("User not found :(")
+    all_users = User.query.all()
+    matches = []
+    for u in all_users:
+        if user.check(u) == 0:
+            matches.append(u)
+    #return success_response([u.serialize() for u in matches])
+    return matches
+
+@app.route("/users/", methods=["POST"])#check
 def create_user():
     body = json.loads(request.data)
     new_username = body.get("username")
@@ -125,7 +182,7 @@ def create_user():
     db.session.commit()
     return success_response(new_user.serialize(), 201)
 
-@app.route("/users/<int:user_id>/")
+@app.route("/users/<int:user_id>/")#check
 def get_user_by_id(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -139,7 +196,7 @@ def get_user_by_id(user_id):
 #         return failure_response("User not found :(")
 #     return success_response(user.serialize(), 201)
 
-@app.route("/users/<int:user_id>/perfect/")
+@app.route("/users/<int:user_id>/perfect/")#check
 def perfect(user_id):
     user = User.query.filter_by(id= user_id).first()
     if user is None:
@@ -151,7 +208,7 @@ def perfect(user_id):
             matches.append(u)
     return success_response([u.serialize() for u in matches])
 
-@app.route("/users/<int:user_id>/talent_match/")
+@app.route("/users/<int:user_id>/talent_match/")#check
 def talent_match(user_id):
     user = User.query.filter_by(id= user_id).first()
     if user is None:
@@ -163,7 +220,7 @@ def talent_match(user_id):
             matches.append(u)
     return success_response([u.serialize() for u in matches])
 
-@app.route("/users/<int:user_id>/need_match/")
+@app.route("/users/<int:user_id>/need_match/")#check
 def need_match(user_id):
     user = User.query.filter_by(id= user_id).first()
     if user is None:
@@ -175,7 +232,7 @@ def need_match(user_id):
             matches.append(u)
     return success_response([u.serialize() for u in matches])
 
-@app.route("/users/<int:user_id>/others")
+@app.route("/users/<int:user_id>/others/")#check
 def others(user_id):
     user = User.query.filter_by(id= user_id).first()
     if user is None:
@@ -188,7 +245,7 @@ def others(user_id):
     return success_response([u.serialize() for u in matches])
 
 
-@app.route("/users/<int:user_id>", methods=["DELETE"])
+@app.route("/users/<int:user_id>/", methods=["DELETE"])#check
 def delete_user(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -197,7 +254,7 @@ def delete_user(user_id):
     db.session.commit()
     return success_response(user.serialize())
 
-@app.route("/users/timeavai/<int:user_id>/", methods=["POST"])
+@app.route("/users/timeavai/<int:user_id>/", methods=["POST"])#check
 def update_timeavai(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -210,7 +267,7 @@ def update_timeavai(user_id):
     db.session.commit()
     return success_response(user.serialize())
 
-@app.route("/users/contact/<int:user_id>/", methods=["POST"])
+@app.route("/users/contact/<int:user_id>/", methods=["POST"])#check
 def update_contact(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -227,11 +284,11 @@ def update_contact(user_id):
 # -- TALENT ROUTES ---------------------------------------------------
 
 
-@app.route("/talents/")
+@app.route("/talents/")#check
 def get_all_talents():
     return success_response([t.serialize() for t in Talent.query.all()])
 
-@app.route("/users/<int:user_id>/talents/")
+@app.route("/users/<int:user_id>/talents/")#check
 def get_all_talents_byid(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -239,7 +296,7 @@ def get_all_talents_byid(user_id):
     user.talent = Talent.query.filter_by(user_id = user_id)
     return success_response([t.serialize() for t in user.talent])
 
-@app.route("/users/<int:user_id>/talents/", methods=["POST"])
+@app.route("/users/<int:user_id>/talents/", methods=["POST"])#check
 def create_talent(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -256,7 +313,7 @@ def create_talent(user_id):
     db.session.commit()
     return success_response(new_talent.serialize())
 
-@app.route("/users/talents/<int:user_id>/<int:talent_id>/", methods=["DELETE"])
+@app.route("/users/talents/<int:user_id>/<int:talent_id>/", methods=["DELETE"])#check
 def delete_talent(user_id, talent_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -268,7 +325,7 @@ def delete_talent(user_id, talent_id):
     db.session.commit()
     return success_response(talent.serialize())
 
-@app.route("/users/talents/<int:user_id>/<int:talent_id>/", methods=["POST"])
+@app.route("/users/talents/<int:user_id>/<int:talent_id>/", methods=["POST"])#check
 def update_experience(user_id, talent_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -287,11 +344,11 @@ def update_experience(user_id, talent_id):
 # -- NEED ROUTES --------------------------------------------------
 
 
-@app.route("/needs/")
+@app.route("/needs/")#check
 def get_all_needs():
     return success_response([n.serialize() for n in Need.query.all()])
 
-@app.route("/users/<int:user_id>/needs/")
+@app.route("/users/<int:user_id>/needs/")#check
 def get_all_needs_byid(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -299,7 +356,7 @@ def get_all_needs_byid(user_id):
     user.need = Need.query.filter_by(user_id = user_id)
     return success_response([n.serialize() for n in user.need])
 
-@app.route("/users/<int:user_id>/needs/", methods=["POST"])
+@app.route("/users/<int:user_id>/needs/", methods=["POST"])#check
 def create_need(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -316,19 +373,19 @@ def create_need(user_id):
     db.session.commit()
     return success_response(new_need.serialize())
 
-@app.route("/users/needs/<int:user_id>/<int:need_id>/", methods=["DELETE"])
+@app.route("/users/needs/<int:user_id>/<int:need_id>/", methods=["DELETE"])#check
 def delete_need(user_id, need_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
         return failure_response("User not found :(")
-    need = Talent.query.filter_by(id=need_id).first()
+    need = Need.query.filter_by(id=need_id).first()
     if need is None:
         return failure_response("Need not found :(")
     db.session.delete(need)
     db.session.commit()
     return success_response(need.serialize())
 
-@app.route("/users/needs/<int:user_id>/<int:need_id>/", methods=["POST"])
+@app.route("/users/needs/<int:user_id>/<int:need_id>/", methods=["POST"])#check
 def update_issue(user_id, need_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -340,8 +397,9 @@ def update_issue(user_id, need_id):
     new_issue = body.get("issue")
     if new_issue is None:
         return failure_response("You did not type in anything :(")
-    talent.issue = new_issue
+    need.issue = new_issue
     db.session.commit()
+    return success_response(need.serialize())
 
 
 #-- IMAGE ROUTES --------------------------------------------------
@@ -386,4 +444,5 @@ def update_issue(user_id, need_id):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = os.environ.get("PORT", 5000)
+    app.run(host="0.0.0.0", port=port)

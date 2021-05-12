@@ -1,0 +1,337 @@
+===Get all users 
+===GET /talentexchange2021.herokuapp.com/users/
+
+Response 
+
+{
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "usernmae": "Peter111",
+            "timeavai": "Saturday night",
+            "contact": "My instagram account is peterhuo1030.".
+            "talents": [<SERIALIZED TALENT WITHOUT USER FIELD>,...],
+            "needs": [<SERIALIZED NEED WITHOUT USER FIELD>,...]
+        },
+        {
+            "id": 2,
+            "usernmae": "Elaine111",
+            "timeavai": "Sunday morning",
+            "contact": "My email address is Elaine@gmail.com".
+            "talents": [<SERIALIZED TALENT WITHOUT USER FIELD>,...],
+            "needs": [<SERIALIZED NEED WITHOUT USER FIELD>,...]
+        }
+        ...
+    ]
+        
+}
+
+===Get all users for a user
+===GET /talentexchange2021.herokuapp.com/users/{userid}/matches/
+
+* This differs from the previous route only in that this will 
+list users who are perfect matches for the user first, 
+then users who match the user’s talents, then users who match 
+the user’s needs, and lastly others. 
+
+===Create a user 
+===POST /talentexchange2021.herokuapp.com/users/
+
+Request
+
+{
+    "username": <USER INPUT>
+}
+
+Response 
+
+{
+    "success": true,
+    "data": {
+        "id": <ID>,
+        "usernmae": <USER INPUT FOR USERNAME>,
+        "timeavai": "",
+        "contact": "".
+        "talents": [],
+        "needs": []
+    }
+}
+
+===Update time available by user id
+===POST /talentexchange2021.herokuapp.com/users/timeavai/{userid}/
+
+Requets 
+
+{
+    "timeavai": <USER INPUT>
+}
+
+Response 
+
+{
+    "success": true,
+    "data": {
+        "id": 1,
+        "usernmae": "Taylor",
+        "timeavai": <USER INPUT FOR TIME AVAILABLE>,
+        "contact": "".
+        "talents": [],
+        "needs": []
+    }
+}
+
+===Update contact by user id  
+===POST /talentexchange2021.herokuapp.com/users/contact/{userid}/
+
+Requets 
+
+{
+    "contact": <USER INPUT>
+}
+
+Response 
+
+{
+    "success": true,
+    "data": {
+        "id": 1,
+        "usernmae": "Taylor",
+        "timeavai": "I am free Monday afertnoon",
+        "contact": <USER INPUT FOR CONTACT>.
+        "talents": [],
+        "needs": []
+    }
+}
+
+===Get user by id 
+===GET /talentexchange2021.herokuapp.com/users/{userid}/
+
+response 
+
+{
+    "success": true,
+    "data": {
+        "id": <ID>,
+        "usernmae": <USER INPUT FOR USERNAME>,
+        "timeavai": <USER INPUT FOR TIME AVAILABLE>,
+        "contact": <USRE INPUT FOR CONTACT>,
+        "talents": [<SERIALIZED TALENT WITHOUT USER FIELD>,...],
+        "needs": [<SERIALIZED NEED WITHOUT USER FIELD>,...]
+    }
+}
+
+===Delete a user 
+===DELETE /talentexchange2021.herokuapp.com/users/{userid}/
+
+response 
+
+{
+    "success": true,
+    "data": {
+        "id": <ID>,
+        "usernmae": <USER INPUT FOR USERNAME>,
+        "timeavai": <USER INPUT FOR TIME AVAILABLE>,
+        "contact": <USRE INPUT FOR CONTACT>,
+        "talents": [<SERIALIZED TALENT WITHOUT USER FIELD>,...],
+        "needs": [<SERIALIZED NEED WITHOUT USER FIELD>,...]
+    }
+}
+
+-------TALENT ROUTES-------
+
+===Create a talent 
+===POST /talentexchange2021.herokuapp.com/users/{userid}/talents/
+
+request 
+
+{
+    "talent": <USER INPUT>
+}
+
+response 
+
+{
+    "success": true,
+    "data": {
+        "id": <ID>
+        "talent": <USER INPUT FOR TALENT>
+        "experience": ""
+    }
+}
+
+===Delete a talent 
+===DELETE /talentexchange2021.herokuapp.com/users/talents/{userid}/{talentid}/
+
+response
+
+{
+    "success": true,
+    "data": {
+        "id": <ID>
+        "talent": <USER INPUT FOR TALENT>
+        "experience": ""
+    }
+}
+
+===Update experience  
+===POST /talentexchange2021.herokuapp.com/users/talents/{userid}/{talentid}/
+
+request 
+
+{
+    "experience": <USER INPUT>
+}
+
+response 
+
+{
+    "success": true,
+    "data": {
+        "id": 16
+        "talent": "python"
+        "experience": <USER INPUT FOR EXPERIENCE>
+    }
+}
+
+===Get all talents
+===GET /talentexchange2021.herokuapp.com/users/talents/
+
+response 
+
+{
+    "success": true,
+    "data": [
+        {
+            "id": <ID>
+            "talent": <USER INPUT FOR TALENT>
+            "experience": <USER INPUT FOR EXPERIENCE>
+        },
+        {
+            "id": <ID>
+            "talent": <USER INPUT FOR TALENT>
+            "experience": <USER INPUT FOR EXPERIENCE>
+        },
+        ... 
+    ]
+}
+
+===Get all talents by userid 
+===GET /talentexchange2021.herokuapp.com/users/{userid}/talents/
+
+{
+    "success": true,
+    "data": [
+        {
+            "id": <ID>
+            "talent": <USER INPUT FOR TALENT>
+            "experience": <USER INPUT FOR EXPERIENCE>
+        },
+        {
+            "id": <ID>
+            "talent": <USER INPUT FOR TALENT>
+            "experience": <USER INPUT FOR EXPERIENCE>
+        },
+        ... 
+    ]
+}
+
+
+-------NEED ROUTES-------
+
+===Create a need
+===POST /talentexchange2021.herokuapp.com/users/{userid}/needs/
+
+request 
+
+{
+    "need": <USER INPUT>
+}
+
+response 
+
+{
+    "success": true,
+    "data": {
+        "id": <ID>
+        "need": <USER INPUT FOR TALENT>
+        "issue": ""
+    }
+}
+
+===Delete a need
+===DELETE /talentexchange2021.herokuapp.com/users/needs/{userid}/{needid}/
+
+response
+
+{
+    "success": true,
+    "data": {
+        "id": <ID>
+        "need": <USER INPUT FOR TALENT>
+        "issue": ""
+    }
+}
+
+===Update issue
+===POST /talentexchange2021.herokuapp.com/users/needs/{userid}/{needid}/
+
+request 
+
+{
+    "issue": <USER INPUT>
+}
+
+response 
+
+{
+    "success": true,
+    "data": {
+        "id": 20
+        "need: "python"
+        "issue": <USER INPUT FOR EXPERIENCE>
+    }
+}
+
+===Get all needs
+===GET /talentexchange2021.herokuapp.com/users/needs/
+
+response 
+
+{
+    "success": true,
+    "data": [
+        {
+            "id": <ID>
+            "need": <USER INPUT FOR NEED>
+            "issue": <USER INPUT FOR ISSUE>
+        },
+        {
+            "id": <ID>
+            "need": <USER INPUT FOR NEED>
+            "issue": <USER INPUT FOR ISSUE>
+        },
+        ... 
+    ]
+}
+
+===Get all needs by userid 
+===GET /talentexchange2021.herokuapp.com/users/{userid}/needs/
+
+{
+    "success": true,
+    "data": [
+        {
+            "id": <ID>
+            "need": <USER INPUT FOR NEED>
+            "issue": <USER INPUT FOR ISSUE>
+        },
+        {
+            "id": <ID>
+            "need": <USER INPUT FOR NEED>
+            "issue": <USER INPUT FOR ISSUE>
+        },
+        ... 
+    ]
+}
+
